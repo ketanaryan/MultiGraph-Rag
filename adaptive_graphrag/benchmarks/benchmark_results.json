@@ -1,0 +1,195 @@
+{
+  "overall": {
+    "standard_vector_rag": {
+      "avg_faithfulness": 1.0,
+      "avg_entity_recall": 0.833,
+      "avg_latency_ms": 0.543
+    },
+    "adaptive_graphrag": {
+      "avg_faithfulness": 1.0,
+      "avg_entity_recall": 1.0,
+      "avg_latency_ms": 38.693
+    },
+    "deltas": {
+      "delta_faithfulness": 0.0,
+      "delta_entity_recall": 0.167,
+      "delta_latency_ms": 38.15
+    }
+  },
+  "multi_hop_specific": {
+    "vector_faithfulness": 1.0,
+    "adaptive_faithfulness": 1.0,
+    "delta_faithfulness": 0.0,
+    "vector_entity_recall": 0.75,
+    "adaptive_entity_recall": 1.0,
+    "delta_entity_recall": 0.25
+  },
+  "detailed_results": {
+    "vector_rag": [
+      {
+        "id": "HQ-01",
+        "benchmark": "HotpotQA",
+        "type": "multi-hop",
+        "query": "Which company supplies EUV lithography to the foundry that manufactures chips for Apple?",
+        "latency_ms": 0.79,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.7583,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes. Based on [Doc3], ASML produces extreme ultraviolet (EUV) photolithography scanners required by leading foundries like TSMC to etch microscopic transistor pathways. Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies.."
+      },
+      {
+        "id": "HQ-02",
+        "benchmark": "HotpotQA",
+        "type": "multi-hop",
+        "query": "Trace all supply chain dependencies connecting ASML to TSMC and Apple.",
+        "latency_ms": 0.51,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.7,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc3], ASML produces extreme ultraviolet (EUV) photolithography scanners required by leading foundries like TSMC to etch microscopic transistor pathways. Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes. Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies.."
+      },
+      {
+        "id": "HQ-03",
+        "benchmark": "HotpotQA",
+        "type": "multi-hop",
+        "query": "What connects ARM architectures, Qualcomm Snapdragon designs, and TSMC fabrication?",
+        "latency_ms": 0.65,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.84,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc4], Qualcomm designs Snapdragon mobile system-on-chips using ARM architectures and contracts TSMC as their premier semiconductor fabricator. Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes. Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies.."
+      },
+      {
+        "id": "FB-01",
+        "benchmark": "FinanceBench",
+        "type": "multi-hop",
+        "query": "Identify the infrastructure chain connecting Nvidia GPU deployments to OpenAI via Microsoft Azure.",
+        "latency_ms": 0.42,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.4083,
+        "entity_recall": 0.0,
+        "response": "Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies. Based on [Doc3], ASML produces extreme ultraviolet (EUV) photolithography scanners required by leading foundries like TSMC to etch microscopic transistor pathways. Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes.."
+      },
+      {
+        "id": "FB-02",
+        "benchmark": "FinanceBench",
+        "type": "single-hop",
+        "query": "Who manufactures custom silicon including A-series and M-series chips for Apple?",
+        "latency_ms": 0.42,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.9864,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes. Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies. Based on [Doc3], ASML produces extreme ultraviolet (EUV) photolithography scanners required by leading foundries like TSMC to etch microscopic transistor pathways.."
+      },
+      {
+        "id": "HQ-04",
+        "benchmark": "HotpotQA",
+        "type": "single-hop",
+        "query": "What is the primary role of an attention head in Transformer architectures?",
+        "latency_ms": 0.47,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.7,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies. Based on [Doc5], Reciprocal Rank Fusion (RRF) is an information retrieval technique that merges multiple ranked lists without needing normalized score calibration. Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes.."
+      }
+    ],
+    "adaptive_graphrag": [
+      {
+        "id": "HQ-01",
+        "benchmark": "HotpotQA",
+        "type": "multi-hop",
+        "query": "Which company supplies EUV lithography to the foundry that manufactures chips for Apple?",
+        "latency_ms": 57.34,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.7583,
+        "s_temp": 0.9277,
+        "s_total": 0.913,
+        "routing_strategy": "hybrid",
+        "complexity_score": 0.402,
+        "retry_count": 0,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc2 (vector)], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes. According to [T1 (graph)], (TSMC) -[SUPPLIES_CHIPS_TO]-> (Apple) Based on [Doc3 (vector)], ASML produces extreme ultraviolet (EUV) photolithography scanners required by leading foundries like TSMC to etch microscopic transistor pathways.."
+      },
+      {
+        "id": "HQ-02",
+        "benchmark": "HotpotQA",
+        "type": "multi-hop",
+        "query": "Trace all supply chain dependencies connecting ASML to TSMC and Apple.",
+        "latency_ms": 35.33,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.56,
+        "s_temp": 0.771,
+        "s_total": 0.8222,
+        "routing_strategy": "graph",
+        "complexity_score": 0.8774,
+        "retry_count": 0,
+        "entity_recall": 1.0,
+        "response": "According to [T1], (TSMC) -[SUPPLIES_CHIPS_TO]-> (Apple) (weight: 0.93) According to [T2], (TSMC) -[SUPPLIES_CHIPS_TO]-> (Nvidia) (weight: 0.79) According to [T3], (ASML) -[PROVIDES_EUV_LITHOGRAPHY_TO]-> (TSMC) (weight: 0.64)."
+      },
+      {
+        "id": "HQ-03",
+        "benchmark": "HotpotQA",
+        "type": "multi-hop",
+        "query": "What connects ARM architectures, Qualcomm Snapdragon designs, and TSMC fabrication?",
+        "latency_ms": 35.94,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.84,
+        "s_temp": 0.7501,
+        "s_total": 0.902,
+        "routing_strategy": "hybrid",
+        "complexity_score": 0.6031,
+        "retry_count": 0,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc4 (vector)], Qualcomm designs Snapdragon mobile system-on-chips using ARM architectures and contracts TSMC as their premier semiconductor fabricator. According to [T1 (graph)], (TSMC) -[SUPPLIES_CHIPS_TO]-> (Apple) Based on [Doc2 (vector)], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes.."
+      },
+      {
+        "id": "FB-01",
+        "benchmark": "FinanceBench",
+        "type": "multi-hop",
+        "query": "Identify the infrastructure chain connecting Nvidia GPU deployments to OpenAI via Microsoft Azure.",
+        "latency_ms": 34.37,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.4667,
+        "s_temp": 0.847,
+        "s_total": 0.8094,
+        "routing_strategy": "graph",
+        "complexity_score": 0.7243,
+        "retry_count": 0,
+        "entity_recall": 1.0,
+        "response": "According to [T2], (TSMC) -[SUPPLIES_CHIPS_TO]-> (Nvidia) (weight: 0.79) According to [T7], (Nvidia) -[DEPLOYS_H100_IN]-> (Microsoft_Azure) (weight: 0.86) According to [T8], (Microsoft_Azure) -[HOSTS_LLM_INFRASTRUCTURE_FOR]-> (OpenAI) (weight: 0.89)."
+      },
+      {
+        "id": "FB-02",
+        "benchmark": "FinanceBench",
+        "type": "single-hop",
+        "query": "Who manufactures custom silicon including A-series and M-series chips for Apple?",
+        "latency_ms": 38.39,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.9864,
+        "s_temp": 0.9277,
+        "s_total": 0.9815,
+        "routing_strategy": "hybrid",
+        "complexity_score": 0.4677,
+        "retry_count": 0,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc2 (vector)], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes. According to [T1 (graph)], (TSMC) -[SUPPLIES_CHIPS_TO]-> (Apple) Based on [Doc1 (vector)], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies.."
+      },
+      {
+        "id": "HQ-04",
+        "benchmark": "HotpotQA",
+        "type": "single-hop",
+        "query": "What is the primary role of an attention head in Transformer architectures?",
+        "latency_ms": 30.79,
+        "s_faith": 1.0,
+        "s_ans_rel": 0.7,
+        "s_temp": 0.85,
+        "s_total": 0.88,
+        "routing_strategy": "vector",
+        "complexity_score": 0.266,
+        "retry_count": 0,
+        "entity_recall": 1.0,
+        "response": "Based on [Doc1], The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies. Based on [Doc5], Reciprocal Rank Fusion (RRF) is an information retrieval technique that merges multiple ranked lists without needing normalized score calibration. Based on [Doc2], TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes.."
+      }
+    ]
+  }
+}
