@@ -100,13 +100,17 @@ export default function Home() {
       
       if (reader) {
         let done = false;
+        let buffer = "";
         while (!done) {
           const { value, done: readerDone } = await reader.read();
           done = readerDone;
           if (value) {
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\\n\\n').filter((l) => l.trim().startsWith('data: '));
-            for (const line of lines) {
+            buffer += decoder.decode(value, { stream: true });
+            const parts = buffer.split('\n\n');
+            buffer = parts.pop() || "";
+            for (const part of parts) {
+              const line = part.trim();
+              if (!line.startsWith('data: ')) continue;
               const dataStr = line.replace('data: ', '').trim();
               if (!dataStr) continue;
               try {
@@ -123,7 +127,9 @@ export default function Home() {
                   }
                   return msg;
                 }));
-              } catch(e) {}
+              } catch(e) {
+                console.error("Failed to parse SSE JSON:", e);
+              }
             }
           }
         }
