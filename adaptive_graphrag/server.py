@@ -162,18 +162,18 @@ async def chat_stream(request: ChatRequest):
                 final_state = state_update
                 if node_name == "planner_node":
                     strat = state_update.get("routing_strategy", "vector")
-                    yield f'data: {json.dumps({"type": "thought", "agent": "Planner Agent", "message": f"Analyzing query complexity. Selected routing strategy: {strat.upper()}"})}\\n\\n'
+                    yield f'data: {json.dumps({"type": "thought", "agent": "Planner Agent", "message": f"Analyzing query complexity. Selected routing strategy: {strat.upper()}"})}\n\n'
                 elif node_name == "retriever_node":
                     triples = state_update.get("retrieved_graph_triples", [])
-                    yield f'data: {json.dumps({"type": "thought", "agent": "Retriever Agent", "message": f"Traversed knowledge graph. Found {len(triples)} relevant structural connections."})}\\n\\n'
+                    yield f'data: {json.dumps({"type": "thought", "agent": "Retriever Agent", "message": f"Traversed knowledge graph. Found {len(triples)} relevant structural connections."})}\n\n'
                 elif node_name == "generator_node":
-                    yield f'data: {json.dumps({"type": "thought", "agent": "Generator Agent", "message": "Synthesizing deterministic answer grounded strictly in retrieved graph context..."})}\\n\\n'
+                    yield f'data: {json.dumps({"type": "thought", "agent": "Generator Agent", "message": "Synthesizing deterministic answer grounded strictly in retrieved graph context..."})}\n\n'
                 elif node_name == "verifier_node":
                     score = state_update.get("verification_score", 0.0)
                     if score >= 0.75:
-                        yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Mathematical verification passed with score {score:.2f}. Proceeding to output."})}\\n\\n'
+                        yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Mathematical verification passed with score {score:.2f}. Proceeding to output."})}\n\n'
                     else:
-                        yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Verification failed (Score: {score:.2f}). Rejecting answer and triggering fallback..."})}\\n\\n'
+                        yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Verification failed (Score: {score:.2f}). Rejecting answer and triggering fallback..."})}\n\n'
                 
         if final_state:
             subgraph = final_state.get("retrieved_graph_triples", [])
@@ -185,7 +185,7 @@ async def chat_stream(request: ChatRequest):
                 "subgraph": clean_subgraph,
                 "score": final_state.get("verification_score", 0.0)
             }
-            yield f'data: {json.dumps(res_payload)}\\n\\n'
+            yield f'data: {json.dumps(res_payload)}\n\n'
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
