@@ -113,15 +113,14 @@ def save_memory(fact: str):
         with open(MEMORY_FILE, "w") as f:
             json.dump(m, f)
 
-@app.post("/api/chat")
-async def chat(request: ChatRequest):
-    if not request.query:
-        raise HTTPException(status_code=400, detail="Query cannot be empty")
-        
-    try:
+from fastapi.responses import StreamingResponse
+import json
+
+@app.post("/api/chat_stream")
+async def chat_stream(request: ChatRequest):
+    async def event_generator():
         memories = get_memory()
         
-        # Simple RLHF / Mem0 heuristic: if user dictates a preference, save it forever.
         lower_q = request.query.lower()
         if "i prefer" in lower_q or "always" in lower_q or "remember" in lower_q or "my name" in lower_q:
             save_memory(request.query)
@@ -131,18 +130,64 @@ async def chat(request: ChatRequest):
             memory_context = " | ".join(memories)
             enhanced_query = f"[LONG-TERM USER MEMORY: {memory_context}]\n\n{request.query}"
 
-        res = await execute_graphrag_pipeline(
-            query=enhanced_query,
-            numerical_extractions=GLOBAL_STATE["numerical_extractions"],
-            uploaded_documents=GLOBAL_STATE["uploaded_documents"]
-        )
-        return {
-            "answer": res.get("generated_response", "Failed to generate response."),
-            "subgraph": res.get("subgraph", []),
-            "score": res.get("verification_score", 0.0)
+        from src.workflow.state_machine import build_graphrag_graph
+        app_graph = build_graphrag_graph()
+        
+        initial_state = {
+            "query_raw": enhanced_query,
+            "query_rewritten": enhanced_query,
+            "complexity_score": 0.0,
+            "routing_strategy": "vector",
+            "entities": [],
+            "estimated_depth": 1,
+            "local_density": 1.0,
+            "retrieved_vector_chunks": [],
+            "retrieved_graph_triples": [],
+            "fused_context": "",
+            "generated_response": "",
+            "verification_score": 0.0,
+            "metric_breakdown": {},
+            "retry_count": 0,
+            "memory_logs": [],
+            "execution_trace": [],
+            "fallback_invoked": False,
+            "numerical_extractions": GLOBAL_STATE.get("numerical_extractions", {}),
+            "math_verification": {},
+            "uploaded_documents": GLOBAL_STATE.get("uploaded_documents", []),
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+        final_state = None
+        async for output in app_graph.astream(initial_state):
+            for node_name, state_update in output.items():
+                final_state = state_update
+                if node_name == "planner_node":
+                    strat = state_update.get("routing_strategy", "vector")
+                    yield f'data: {json.dumps({"type": "thought", "agent": "Planner Agent", "message": f"Analyzing query complexity. Selected routing strategy: {strat.upper()}"})}\\n\\n'
+                elif node_name == "retriever_node":
+                    triples = state_update.get("retrieved_graph_triples", [])
+                    yield f'data: {json.dumps({"type": "thought", "agent": "Retriever Agent", "message": f"Traversed knowledge graph. Found {len(triples)} relevant structural connections."})}\\n\\n'
+                elif node_name == "generator_node":
+                    yield f'data: {json.dumps({"type": "thought", "agent": "Generator Agent", "message": "Synthesizing deterministic answer grounded strictly in retrieved graph context..."})}\\n\\n'
+                elif node_name == "verifier_node":
+                    score = state_update.get("verification_score", 0.0)
+                    if score >= 0.75:
+                        yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Mathematical verification passed with score {score:.2f}. Proceeding to output."})}\\n\\n'
+                    else:
+                        yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Verification failed (Score: {score:.2f}). Rejecting answer and triggering fallback..."})}\\n\\n'
+                
+        if final_state:
+            subgraph = final_state.get("retrieved_graph_triples", [])
+            # Only keep exact structure to avoid serialization errors
+            clean_subgraph = [{"subject": t.get("subject"), "predicate": t.get("predicate"), "object": t.get("object"), "source": t.get("source")} for t in subgraph]
+            res_payload = {
+                "type": "done",
+                "answer": final_state.get("generated_response", "Failed to generate response."),
+                "subgraph": clean_subgraph,
+                "score": final_state.get("verification_score", 0.0)
+            }
+            yield f'data: {json.dumps(res_payload)}\\n\\n'
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     import uvicorn
