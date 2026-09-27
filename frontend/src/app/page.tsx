@@ -91,6 +91,10 @@ export default function Home() {
         body: JSON.stringify({ query: userMessage.content }),
       });
       
+      if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
+      }
+
       const reader = res.body?.getReader();
       const decoder = new TextDecoder("utf-8");
       
