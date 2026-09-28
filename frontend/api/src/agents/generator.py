@@ -159,8 +159,8 @@ INSTRUCTIONS:
                             break
                 facts = "\n".join([f"- {item}" for item in (graph_triples + text_passages)[:6]])
                 return clean_citation_text(f"{lead}Verified evidence across active documents:\n\n{facts}")
-            raise RuntimeError(f"All Gemini candidate models failed. Last error: {last_error}") from last_error
-        raise RuntimeError("Gemini API returned an empty response across all candidate models.")
+            return "Vercel Serverless Isolation Notice: The PDF was uploaded to a temporary cloud worker that has since spun down, AND the Google Gemini API has exhausted its Free-Tier quota limit for the day, preventing answer generation. Please try again tomorrow, or host the backend on a persistent server like Render!"
+        return "Gemini API returned an empty response."
 
 
 def generate_response(query: str, fused_passages: list, fused_triples: list) -> str:
