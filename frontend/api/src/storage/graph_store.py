@@ -46,13 +46,30 @@ class GraphStore:
             {"triple_id": "T8", "subject": "Microsoft_Azure", "predicate": "HOSTS_LLM_INFRASTRUCTURE_FOR", "object": "OpenAI", "t_e": current_day - 8, "w0": 1.0},
         ]
 
-    def add_triples(self, new_triples: List[Dict[str, Any]]) -> None:
-        """Appends newly ingested triples (e.g. from parsed PDFs) into active graph."""
+    async def add_triples(self, new_triples: List[Dict[str, Any]]) -> None:
+        """Appends newly ingested triples into active graph (or Neo4j if connected)."""
         existing_ids = {t.get("triple_id") for t in self._in_memory_triples}
+        to_add = []
         for t in new_triples:
             if t.get("triple_id") not in existing_ids:
                 self._in_memory_triples.append(t)
                 existing_ids.add(t.get("triple_id"))
+                to_add.append(t)
+        
+        if self._is_connected and hasattr(self, "driver") and self.driver and to_add:
+            try:
+                cypher = (
+                    "UNWIND $batch AS row "
+                    "MERGE (s:Entity {name: row.subject}) "
+                    "MERGE (o:Entity {name: row.object}) "
+                    "MERGE (s)-[r:RELATION {type: row.predicate}]->(o) "
+                    "SET r.timestamp = row.t_e, r.weight = row.w0, r.source = row.source"
+                )
+                async with self.driver.session(database=settings.neo4j_database) as session:
+                    await session.run(cypher, parameters={"batch": to_add})
+            except Exception as e:
+                import logging
+                logging.error(f"Neo4j Write Error: {e}")
 
     def clear_custom_triples(self) -> None:
         """Resets the in-memory graph to default seed state."""

@@ -56,7 +56,7 @@ async def upload_documents(files: List[UploadFile] = File(...)):
             GLOBAL_STATE["uploaded_documents"].append(f.filename)
             
     # Process documents
-    res = ingest_pdf_documents(mock_files)
+    res = await ingest_pdf_documents(mock_files)
     
     # Merge numerical extractions state
     GLOBAL_STATE["numerical_extractions"] = res["numerical_extractions"]

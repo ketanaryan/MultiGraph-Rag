@@ -200,7 +200,7 @@ def generate_triples_and_chunks(parsed_doc: Dict[str, Any], idx: int) -> Tuple[L
 
 import concurrent.futures
 
-def ingest_pdf_documents(uploaded_files: List[Any]) -> Dict[str, Any]:
+async def ingest_pdf_documents(uploaded_files: List[Any]) -> Dict[str, Any]:
     """Ingests multiple PDF documents into GraphStore and VectorStore simultaneously using parallel threads."""
     all_triples, all_chunks = [], []
     numerical_extractions = {"invoices": {}, "total_sum": 0.0, "doc_count": len(uploaded_files)}
@@ -240,7 +240,10 @@ def ingest_pdf_documents(uploaded_files: List[Any]) -> Dict[str, Any]:
                 "vendor": parsed.get("candidate_name") or parsed.get("vendor", doc_name), "amount": parsed.get("total_amount", 0.0)
             })
 
-    get_graph_store().add_triples(all_triples)
+    store = get_graph_store()
+    if hasattr(store, 'connect') and not store._is_connected:
+        await store.connect()
+    await store.add_triples(all_triples)
     get_vector_store().add_documents(all_chunks)
 
     return {
