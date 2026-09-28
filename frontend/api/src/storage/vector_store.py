@@ -25,43 +25,9 @@ class VectorStore:
         self._init_chroma()
 
     def _seed_default_documents(self) -> None:
-        """Seeds standard text passages for benchmark evaluation."""
-        self._documents: List[Dict[str, Any]] = [
-            {
-                "chunk_id": "Doc1",
-                "text": "The attention head in a Transformer computes scaled dot-product attention over queries, keys, and values to capture contextual token dependencies.",
-                "metadata": {"topic": "Deep Learning", "source": "Attention is All You Need"}
-            },
-            {
-                "chunk_id": "Doc2",
-                "text": "TSMC manufactures custom silicon including the A-series and M-series chips for Apple using advanced 3nm and 5nm lithography nodes.",
-                "metadata": {"topic": "Semiconductors", "source": "Foundry Industry Report"}
-            },
-            {
-                "chunk_id": "Doc3",
-                "text": "ASML produces extreme ultraviolet (EUV) photolithography scanners required by leading foundries like TSMC to etch microscopic transistor pathways.",
-                "metadata": {"topic": "Semiconductors", "source": "Lithography Review"}
-            },
-            {
-                "chunk_id": "Doc4",
-                "text": "Qualcomm designs Snapdragon mobile system-on-chips using ARM architectures and contracts TSMC as their premier semiconductor fabricator.",
-                "metadata": {"topic": "Semiconductors", "source": "Qualcomm Filing"}
-            },
-            {
-                "chunk_id": "Doc5",
-                "text": "Reciprocal Rank Fusion (RRF) is an information retrieval technique that merges multiple ranked lists without needing normalized score calibration.",
-                "metadata": {"topic": "Information Retrieval", "source": "SIGIR Paper"}
-            },
-            {
-                "chunk_id": "Doc6",
-                "text": "Apple's primary revenue stream is hardware product sales led by iPhone devices generating over 50% of total net sales, supplemented by Services revenue including App Store, iCloud, and Apple Pay.",
-                "metadata": {"topic": "Financial Performance", "source": "Apple 10-K Filing"}
-            }
-        ]
-        all_words = set()
-        for doc in self._documents:
-            all_words.update(re.findall(r"\b\w+\b", doc["text"].lower()))
-        self._vocab = sorted(list(all_words))
+        """Initializes empty vector documents."""
+        self._documents = []
+        self._vocab = []
 
     def _init_chroma(self) -> None:
         """Initializes ChromaDB client if library is present."""

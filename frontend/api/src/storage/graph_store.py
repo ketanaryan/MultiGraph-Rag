@@ -33,18 +33,8 @@ class GraphStore:
         self._seed_default_graph()
 
     def _seed_default_graph(self) -> None:
-        """Seeds standard test knowledge graph for supply chains and AI chips."""
-        current_day = time.time() / 86400.0
-        self._in_memory_triples = [
-            {"triple_id": "T1", "subject": "TSMC", "predicate": "SUPPLIES_CHIPS_TO", "object": "Apple", "t_e": current_day - 5, "w0": 1.0},
-            {"triple_id": "T2", "subject": "TSMC", "predicate": "SUPPLIES_CHIPS_TO", "object": "Nvidia", "t_e": current_day - 12, "w0": 0.95},
-            {"triple_id": "T3", "subject": "ASML", "predicate": "PROVIDES_EUV_LITHOGRAPHY_TO", "object": "TSMC", "t_e": current_day - 30, "w0": 1.0},
-            {"triple_id": "T4", "subject": "Qualcomm", "predicate": "LICENSES_ARM_ARCHITECTURE_FROM", "object": "Arm", "t_e": current_day - 20, "w0": 0.9},
-            {"triple_id": "T5", "subject": "TSMC", "predicate": "MANUFACTURES_SNAPDRAGON_FOR", "object": "Qualcomm", "t_e": current_day - 18, "w0": 0.95},
-            {"triple_id": "T6", "subject": "Intel", "predicate": "LEGACY_FOUNDRY_CONTRACT_WITH", "object": "Apple", "t_e": current_day - 300, "w0": 0.8},
-            {"triple_id": "T7", "subject": "Nvidia", "predicate": "DEPLOYS_H100_IN", "object": "Microsoft_Azure", "t_e": current_day - 10, "w0": 1.0},
-            {"triple_id": "T8", "subject": "Microsoft_Azure", "predicate": "HOSTS_LLM_INFRASTRUCTURE_FOR", "object": "OpenAI", "t_e": current_day - 8, "w0": 1.0},
-        ]
+        """Initializes empty graph."""
+        self._in_memory_triples = []
 
     async def add_triples(self, new_triples: List[Dict[str, Any]]) -> None:
         """Appends newly ingested triples into active graph (or Neo4j if connected)."""
