@@ -37,7 +37,7 @@ export default function Home() {
     });
 
     try {
-      const res = await fetch("http://localhost:8000/api/upload", {
+      const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
@@ -55,7 +55,7 @@ export default function Home() {
   const handleFeedback = async (subgraph: SubgraphItem[], isPositive: boolean) => {
     if (!subgraph.length) return;
     try {
-      const res = await fetch("http://localhost:8000/api/feedback", {
+      const res = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subgraph, is_positive: isPositive }),
@@ -85,7 +85,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/chat_stream", {
+      const res = await fetch("/api/chat_stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: userMessage.content }),

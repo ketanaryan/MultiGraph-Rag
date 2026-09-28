@@ -18,7 +18,7 @@ def extract_text_from_pdf_stream(stream: io.BytesIO) -> str:
     try:
         reader = PdfReader(stream)
         # ONLY read up to the first 5 pages! PyPDF is extremely slow on 500-page 15MB documents.
-        pages_to_read = reader.pages[:5]
+        pages_to_read = reader.pages[:2]
         extracted = "\n".join([p.extract_text() or "" for p in pages_to_read]).strip()
         if not extracted and reader.metadata:
             extracted = "\n".join(str(v) for k, v in reader.metadata.items() if k in ["/Subject", "/Title", "/Author"]).strip()

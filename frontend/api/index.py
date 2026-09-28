@@ -176,12 +176,14 @@ async def chat_stream(request: ChatRequest):
                         yield f'data: {json.dumps({"type": "thought", "agent": "Verifier Agent", "message": f"Verification failed (Score: {score:.2f}). Rejecting answer and triggering fallback..."})}\n\n'
                 
         if final_state:
+            print("FINAL STATE REACHED:", final_state.keys())
+            print("GENERATED RESPONSE:", final_state.get("generated_response"))
             subgraph = final_state.get("retrieved_graph_triples", [])
             # Only keep exact structure to avoid serialization errors
             clean_subgraph = [{"subject": t.get("subject"), "predicate": t.get("predicate"), "object": t.get("object"), "source": t.get("source")} for t in subgraph]
             res_payload = {
                 "type": "done",
-                "answer": final_state.get("generated_response", "Failed to generate response."),
+                "answer": final_state.get("generated_response") or "Failed to generate response.",
                 "subgraph": clean_subgraph,
                 "score": final_state.get("verification_score", 0.0)
             }
