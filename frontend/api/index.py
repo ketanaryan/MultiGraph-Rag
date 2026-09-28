@@ -1,6 +1,9 @@
 import os
+import sys
 import io
 import asyncio
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
