@@ -159,10 +159,10 @@ async def chat_stream(request: ChatRequest):
             "uploaded_documents": GLOBAL_STATE.get("uploaded_documents", []),
         }
 
-        final_state = None
+        final_state = dict(initial_state)
         async for output in app_graph.astream(initial_state):
             for node_name, state_update in output.items():
-                final_state = state_update
+                final_state.update(state_update)
                 if node_name == "planner_node":
                     strat = state_update.get("routing_strategy", "vector")
                     yield f'data: {json.dumps({"type": "thought", "agent": "Planner Agent", "message": f"Analyzing query complexity. Selected routing strategy: {strat.upper()}"})}\n\n'
