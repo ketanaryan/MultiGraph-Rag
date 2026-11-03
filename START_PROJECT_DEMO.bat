@@ -22,16 +22,19 @@ echo      - Traverses Doc 1 -> Doc 2 -> Doc 3 and synthesizes answer
 echo.
 echo  [4] Open Final Formatted Project Report (project_final_formatted_v4.docx)
 echo.
-echo  [5] Exit
+echo  [5] Inspect Active Databases (Graph DB & ChromaDB Status)
+echo.
+echo  [6] Exit
 echo.
 echo =====================================================================
-set /p choice="Enter your choice (1, 2, 3, 4, or 5): "
+set /p choice="Enter your choice (1, 2, 3, 4, 5, or 6): "
 
 if "%choice%"=="1" goto STREAMLIT
 if "%choice%"=="2" goto NEXTJS
 if "%choice%"=="3" goto TEST
 if "%choice%"=="4" goto REPORT
-if "%choice%"=="5" goto EXIT
+if "%choice%"=="5" goto DB
+if "%choice%"=="6" goto EXIT
 
 :STREAMLIT
 echo.
@@ -70,6 +73,15 @@ goto EXIT
 echo.
 echo Opening Final Project Report in Microsoft Word...
 start "" "C:\Users\KETAN\OneDrive\Desktop\project_final_formatted_v4.docx"
+pause
+goto EXIT
+
+:DB
+echo.
+echo Inspecting Active Graph and Vector Database Status...
+cd /d "C:\Users\KETAN\Downloads\aryan project\MultiAgent_GrapeRAG\frontend\api"
+.\venv\Scripts\python.exe show_database.py
+echo.
 pause
 goto EXIT
 
