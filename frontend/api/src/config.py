@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # LLM Settings
     gemini_api_key: str = Field(default="")
-    gemini_model: str = Field(default="gemini-3.6-flash")
+    gemini_model: str = Field(default="gemini-2.5-flash")
     openai_api_key: str = Field(default="mock-key-for-local-execution")
     llm_model: str = Field(default="gpt-4o-mini")
     embedding_model: str = Field(default="text-embedding-3-small")

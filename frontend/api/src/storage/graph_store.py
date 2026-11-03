@@ -117,21 +117,45 @@ class GraphStore:
         if not self._is_connected:
             return self._query_in_memory_subgraph(entities, depth, t_0, source_filter=source_filter)
 
-        cypher = (
-            f"MATCH path = (s:Entity)-[r*1..{depth}]-(o:Entity) "
-            "WHERE s.name IN $entities "
-            "UNWIND relationships(path) as rel "
-            "RETURN DISTINCT startNode(rel).name as subject, type(rel) as predicate, "
-            "endNode(rel).name as object, rel.timestamp as t_e, "
-            "coalesce(rel.weight, 1.0) as w0, id(rel) as triple_id"
-        )
+        records: List[Dict[str, Any]] = []
         try:
             async with self.driver.session(database=settings.neo4j_database) as session:
-                result = await session.run(cypher, parameters={"entities": entities})
-                records = [record.data() async for record in result]
-                return self.filter_triples_by_temporal_decay(records, t_0)
-        except Exception:
-            return self._query_in_memory_subgraph(entities, depth, t_0, source_filter=source_filter)
+                if entities:
+                    cypher = (
+                        f"MATCH path = (s:Entity)-[r*1..{min(depth, 3)}]->(o:Entity) "
+                        "WHERE s.name IN $entities OR any(e IN $entities WHERE toLower(s.name) CONTAINS toLower(e)) "
+                        "UNWIND relationships(path) as rel "
+                        "RETURN DISTINCT startNode(rel).name as subject, coalesce(rel.type, type(rel)) as predicate, "
+                        "coalesce(rel.type, type(rel)) as relation, "
+                        "endNode(rel).name as object, rel.timestamp as t_e, "
+                        "coalesce(rel.weight, 1.0) as w0, coalesce(rel.source, '') as source, "
+                        "elementId(rel) as triple_id"
+                    )
+                    res = await session.run(cypher, parameters={"entities": entities})
+                    records = [rec.data() async for rec in res]
+
+                if not records and source_filter:
+                    cypher_src = (
+                        "MATCH (s:Entity)-[rel:RELATION]->(o:Entity) "
+                        "WHERE rel.source IN $sources OR any(sf IN $sources WHERE toLower(rel.source) CONTAINS toLower(sf)) "
+                        "RETURN DISTINCT s.name as subject, coalesce(rel.type, type(rel)) as predicate, "
+                        "coalesce(rel.type, type(rel)) as relation, "
+                        "o.name as object, rel.timestamp as t_e, "
+                        "coalesce(rel.weight, 1.0) as w0, coalesce(rel.source, '') as source, "
+                        "elementId(rel) as triple_id"
+                    )
+                    res_src = await session.run(cypher_src, parameters={"sources": source_filter})
+                    records = [rec.data() async for rec in res_src]
+
+                if records:
+                    filtered = self.filter_triples_by_temporal_decay(records, t_0)
+                    if filtered:
+                        return filtered
+        except Exception as e:
+            pass
+
+        # Fallback to in-memory graph store if Neo4j returns empty
+        return self._query_in_memory_subgraph(entities, depth, t_0, source_filter=source_filter)
 
     def _query_in_memory_subgraph(
         self,

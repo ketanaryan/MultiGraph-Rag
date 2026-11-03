@@ -47,7 +47,7 @@ RULES:
 Document Text:
 {raw_text[:25000]}
 """
-        models = [m for m in [settings.gemini_model, "gemini-3.6-flash", "gemini-3.8-flash"] if m]
+        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
         res = None
         for m in dict.fromkeys(models):
             try:
