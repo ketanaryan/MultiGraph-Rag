@@ -20,7 +20,7 @@ async def main():
     ]
     files = [MockFile(p) for p in file_paths]
         
-    ingest_res = ingest_pdf_documents(files)
+    ingest_res = await ingest_pdf_documents(files)
     
     print("Executing RAG Pipeline...")
     res = await execute_graphrag_pipeline(

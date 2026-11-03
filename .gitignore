@@ -74,3 +74,6 @@ build/
 dist/
 *.egg-info/
 *.egg
+
+# Word lock files
+~$*

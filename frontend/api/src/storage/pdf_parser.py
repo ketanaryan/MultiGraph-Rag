@@ -18,7 +18,7 @@ def extract_text_from_pdf_stream(stream: io.BytesIO) -> str:
     try:
         reader = PdfReader(stream)
         # ONLY read up to the first 5 pages! PyPDF is extremely slow on 500-page 15MB documents.
-        pages_to_read = reader.pages[:2]
+        pages_to_read = reader.pages[:35]
         extracted = "\n".join([p.extract_text() or "" for p in pages_to_read]).strip()
         if not extracted and reader.metadata:
             extracted = "\n".join(str(v) for k, v in reader.metadata.items() if k in ["/Subject", "/Title", "/Author"]).strip()
@@ -45,9 +45,9 @@ RULES:
 3. Output strictly valid JSON: [{{"subject": "...", "relation": "...", "object": "..."}}]
 
 Document Text:
-{raw_text[:6000]}
+{raw_text[:25000]}
 """
-        models = [m for m in [settings.gemini_model, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite"] if m]
+        models = [m for m in [settings.gemini_model, "gemini-3.6-flash", "gemini-3.8-flash"] if m]
         res = None
         for m in dict.fromkeys(models):
             try:
@@ -189,12 +189,20 @@ def generate_triples_and_chunks(parsed_doc: Dict[str, Any], idx: int) -> Tuple[L
         for skill in parsed_doc["skills"][:4]:
             add_triple(clean_title, "USES_TECH", skill)
 
+    clean_title = doc_name.replace(".pdf", "").replace("_", " ")
+    for line in lines[:80]:
+        rel_match = re.search(r"\b([A-Z][A-Za-z0-9_\s]{1,30}?)\s+(is a|is an|consists of|includes|provides|defines|requires|features|implements|utilizes|supports|developed by)\s+([A-Za-z0-9_\s]{2,40})", line, re.I)
+        if rel_match:
+            sub = rel_match.group(1).strip()
+            pred = rel_match.group(2).strip().replace(" ", "_").upper()
+            obj = rel_match.group(3).strip()
+            if len(sub) <= 35 and len(obj) <= 35:
+                add_triple(sub, pred, obj)
     if not triples:
-        clean_title = doc_name.replace(".pdf", "").replace("_", " ")
         add_triple(clean_title, "COVERS_TOPIC", clean_title)
 
     paras = [p.strip() for p in re.split(r"\n\s*\n", raw_text) if len(p.strip()) > 20] or [l.strip() for l in raw_text.split("\n") if len(l.strip()) > 15] or [raw_text[:400]]
-    chunks = [{"chunk_id": f"Doc_{doc_slug}_{idx}_{c}", "text": p, "similarity_score": 0.95, "metadata": {"source": doc_name, "doc_name": doc_name}} for c, p in enumerate(paras[:6], start=1)]
+    chunks = [{"chunk_id": f"Doc_{doc_slug}_{idx}_{c}", "text": p, "similarity_score": 0.95, "metadata": {"source": doc_name, "doc_name": doc_name}} for c, p in enumerate(paras[:40], start=1)]
     return triples, chunks
 
 
@@ -217,7 +225,7 @@ async def ingest_pdf_documents(uploaded_files: List[Any]) -> Dict[str, Any]:
         if gemini_triples:
             triples = gemini_triples
             paras = [p.strip() for p in re.split(r"\n\s*\n", raw_text) if len(p.strip()) > 20] or [l.strip() for l in raw_text.split("\n") if len(l.strip()) > 15] or [raw_text[:400]]
-            chunks = [{"chunk_id": f"Doc_{doc_slug}_{idx}_{c}", "text": p, "similarity_score": 0.95, "metadata": {"source": doc_name, "doc_name": doc_name}} for c, p in enumerate(paras[:6], start=1)]
+            chunks = [{"chunk_id": f"Doc_{doc_slug}_{idx}_{c}", "text": p, "similarity_score": 0.95, "metadata": {"source": doc_name, "doc_name": doc_name}} for c, p in enumerate(paras[:40], start=1)]
         else:
             triples, chunks = generate_triples_and_chunks(parsed, idx)
 

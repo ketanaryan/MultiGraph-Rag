@@ -43,7 +43,8 @@ def test_parse_financial_entities():
     assert len(parsed["amounts_found"]) >= 2
 
 
-def test_multi_pdf_ingestion_and_triples():
+@pytest.mark.asyncio
+async def test_multi_pdf_ingestion_and_triples():
     """Validates simultaneous ingestion of multiple PDF documents."""
     pdf1 = create_sample_invoice_bytes("Vendor Alpha", "INV-101", 10000.0, "2026-09-01", ["Item 1"])
     pdf2 = create_sample_invoice_bytes("Vendor Beta", "INV-102", 25000.0, "2026-09-05", ["Item 2"])
@@ -56,7 +57,7 @@ def test_multi_pdf_ingestion_and_triples():
             return self._data
 
     uploads = [MockUpload("invoice_1.pdf", pdf1), MockUpload("invoice_2.pdf", pdf2)]
-    result = ingest_pdf_documents(uploads)
+    result = await ingest_pdf_documents(uploads)
 
     assert result["triples_count"] >= 6
     assert result["chunks_count"] == 2

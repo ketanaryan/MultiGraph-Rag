@@ -17,6 +17,7 @@ from src.config import settings
 from src.routing import calculate_query_complexity, determine_routing_strategy
 from src.workflow.state_machine import execute_graphrag_pipeline
 from src.storage.graph_store import get_graph_store
+from src.storage.vector_store import get_vector_store
 from src.storage.pdf_parser import ingest_pdf_documents
 from ui.styles import EDITORIAL_CSS
 
@@ -61,9 +62,10 @@ with u_col2:
         if st.session_state.get("uploaded_files_cache") != curr_cache:
             with st.spinner("Extracting dynamic knowledge graph with Gemini..."):
                 get_graph_store().clear_custom_triples()
+                get_vector_store().clear_custom_documents()
                 st.session_state["uploaded_triples"], st.session_state["current_subgraph"] = [], []
                 st.session_state["fused_context"], st.session_state["last_state"] = "", None
-                ingest_res = ingest_pdf_documents(uploaded_files)
+                ingest_res = asyncio.run(ingest_pdf_documents(uploaded_files))
                 st.session_state["uploaded_pdf_summary"] = ingest_res["documents"]
                 st.session_state["numerical_extractions"] = ingest_res["numerical_extractions"]
                 st.session_state["uploaded_triples"] = st.session_state["current_subgraph"] = ingest_res["triples"]

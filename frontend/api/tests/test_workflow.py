@@ -88,7 +88,7 @@ async def test_uploaded_resume_pipeline_execution():
     )
     parsed = parse_financial_entities(resume_text, "Resume.pdf")
     triples, chunks = generate_triples_and_chunks(parsed, 1)
-    get_graph_store().add_triples(triples)
+    await get_graph_store().add_triples(triples)
     get_vector_store().add_documents(chunks)
 
     query = "What skills does the candidate have in the resume?"

@@ -123,7 +123,7 @@ INSTRUCTIONS:
         import logging, time
         logger = logging.getLogger(__name__)
 
-        candidate_models = ["gemini-3.8-flash", "gemini-1.5-flash"]
+        candidate_models = ["gemini-3.6-flash", "gemini-3.8-flash"]
         if settings.gemini_model:
             if settings.gemini_model in candidate_models:
                 candidate_models.remove(settings.gemini_model)

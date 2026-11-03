@@ -52,7 +52,11 @@ def test_edge_pruning_threshold():
 async def test_graph_store_subgraph_query():
     """Validates subgraph querying and entity filtering."""
     store = get_graph_store()
-    results = await store.query_subgraph(entities=["TSMC", "Apple"], depth=2)
+    await store.add_triples([
+        {"triple_id": "T_test_1", "subject": "TSMC", "predicate": "SUPPLIES", "object": "Apple", "t_e": 100.0, "w0": 1.0, "source": "test"},
+        {"triple_id": "T_test_2", "subject": "Apple", "predicate": "MANUFACTURES", "object": "iPhone", "t_e": 100.0, "w0": 1.0, "source": "test"},
+    ])
+    results = await store.query_subgraph(entities=["TSMC", "Apple"], depth=2, t_0=100.0)
     
     assert len(results) > 0
     # Every surviving edge must have weight >= tau_decay
